@@ -5,6 +5,8 @@ date: "2/12"
 output: pdf_document
 ---
 
+https://github.com/SamuelLi1225/SDS-HW3
+
 ```{r setup, include=FALSE}
 library(ggplot2)
 library(mosaic)
