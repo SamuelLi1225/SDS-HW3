@@ -1,0 +1,136 @@
+---
+title: "SDS315 HW 3"
+author: "Samuel Li"
+date: "2/12"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(mosaic)
+library(dplyr)
+knitr::opts_chunk$set(fig.height=8, fig.width=12, warning=FALSE, message=FALSE)
+```
+
+
+
+# Problem 1
+
+## Part A
+```{r echo=FALSE}
+gas_data <- read.csv("gasprices.csv")
+boot_gas <- do(10000) * diffmean(Price ~ Competitors, data = resample(gas_data))
+confint(boot_gas, level = 0.95)
+```
+- **Question:** Do gas stations charge more without competition?
+- **Approach:** Used bootstrapped mean difference in gas prices.
+- **Results:** Mean difference **-0.0235**, CI **(-0.0555, 0.0080)**.
+- **Conclusion:** No strong evidence supporting the claim since CI includes **0**.
+
+## Part B
+```{r echo=FALSE}
+boot_income <- do(10000) * cor(Price ~ Income, data = resample(gas_data))
+confint(boot_income, level = 0.95)
+```
+- **Question:** Do higher-income areas have higher gas prices?
+- **Approach:** Used bootstrapped correlation between price and income.
+- **Results:** Correlation **0.396**, CI **(0.200, 0.564)**.
+- **Conclusion:** Significant moderate positive correlation, supporting the claim.
+
+## Part C
+```{r echo=FALSE}
+boot_stoplight <- do(10000) * diffmean(Price ~ Stoplight, data = resample(gas_data))
+confint(boot_stoplight, level = 0.95)
+```
+- **Question:** Do gas stations at stoplights charge more?
+- **Approach:** Used bootstrapped mean difference in gas prices at stoplights.
+- **Results:** Mean difference **-0.0033**, CI **(-0.0376, 0.0311)**.
+- **Conclusion:** No strong evidence supporting the claim since CI includes **0**.
+
+## Part D
+```{r echo=FALSE}
+boot_highway_access <- do(10000) * diffmean(Price ~ Highway, data = resample(gas_data))
+confint(boot_highway_access, level = 0.95)
+```
+- **Question:** Do gas stations near highways charge more?
+- **Approach:** Used bootstrapped mean difference in gas prices near highways.
+- **Results:** Mean difference **0.0457**, CI **(0.0089, 0.0817)**.
+- **Conclusion:** Significant evidence supporting the claim since CI **excludes 0**.
+
+## Part E
+```{r echo=FALSE}
+gas_data$BrandGroup <- ifelse(gas_data$Brand == "Shell", "Shell", "Other")
+boot_brand <- do(10000) * diffmean(Price ~ BrandGroup, data = resample(gas_data))
+confint(boot_brand, level = 0.95)
+```
+- **Question:** Does Shell charge more than other brands?
+- **Approach:** Used bootstrapped mean difference in gas prices between Shell and others.
+- **Results:** CI includes **0**, meaning no strong evidence.
+- **Conclusion:** The claim is not statistically supported since the CI contains **0**.
+
+# Problem 2
+
+## Part A
+```{r echo=FALSE}
+sclass_data <- read.csv("sclass.csv")
+sclass_filtered <- sclass_data[sclass_data$year == 2011 & sclass_data$trim == "63 AMG", ]
+boot_mileage <- do(10000) * mean(~mileage, data = resample(sclass_filtered))
+confint(boot_mileage, level = 0.95)
+```
+
+## Part B
+```{r echo=FALSE}
+filtered_mercedes <- read.csv("sclass.csv")
+filtered_mercedes <- filtered_mercedes[filtered_mercedes$year == 2014 & filtered_mercedes$trim == "550", ]
+filtered_mercedes$isBlack <- filtered_mercedes$color == "Black"
+boot_black <- do(10000) * prop(~isBlack, data = resample(filtered_mercedes))
+confint(boot_black, level = 0.95)
+```
+
+# Problem 3
+
+## Part A
+```{r echo=FALSE}
+nbc_data <- read.csv("nbc_pilotsurvey.csv")
+nbc_filtered <- nbc_data[nbc_data$Show %in% c("My Name is Earl", "Living with Ed"), ]
+boot_happy <- do(10000) * diffmean(Q1_Happy ~ Show, data = resample(nbc_filtered))
+confint(boot_happy, level = 0.95)
+```
+- **Question:** Which show makes people happier?
+- **Approach:** Used bootstrapped mean difference in happy responses.
+- **Results:** Mean difference **-0.149**, CI **(-0.3992, 0.0988)**.
+- **Conclusion:** No statistical evidence supporting a happiness difference since CI contains **0**.
+
+## Part B
+```{r echo=FALSE}
+boot_annoyed <- do(10000) * diffmean(Q1_Annoyed ~ Show, data = resample(nbc_filtered))
+confint(boot_annoyed, level = 0.95)
+```
+- **Question:** Which show is more annoying?
+- **Approach:** Used bootstrapped mean difference in annoyed responses.
+- **Results:** Mean difference **-0.271**, CI **(-0.5174, -0.0229)**.
+- **Conclusion:** Significant evidence that "The Apprentice: Los Angeles" is more annoying.
+
+## Part C
+```{r echo=FALSE}
+nbc_filtered <- nbc_data[nbc_data$Show == "Dancing with the Stars", ]
+nbc_filtered$ConfusingBinary <- nbc_filtered$Q2_Confusing > 3
+boot_confusing <- do(10000) * prop(~ConfusingBinary, data = resample(nbc_filtered))
+confint(boot_confusing, level = 0.95)
+```
+- **Question:** How many viewers found "Dancing with the Stars" confusing?
+- **Approach:** Used bootstrapped proportion of confused responses.
+- **Results:** Proportion **0.0773**, CI **(0.0387, 0.1160)**.
+- **Conclusion:** A small proportion of viewers found the show confusing since CI is all above **0**.
+
+# Problem 4:
+```{r echo=FALSE}
+ebay_data <- read.csv("ebay.csv")
+ebay_data$revenue_ratio <- ebay_data$rev_after / ebay_data$rev_before
+boot_ebay <- do(10000) * diffmean(revenue_ratio ~ adwords_pause, data = resample(ebay_data))
+confint(boot_ebay, level = 0.95)
+```
+- **Question:** Does paid search improve revenue?
+- **Approach:** Used bootstrapped mean difference in revenue ratios before and after ad pause.
+- **Results:** Mean difference **-0.05228**, CI **(-0.0914, -0.01421)**.
+- **Conclusion:** The negative effect suggests pausing ads lowers revenue since CI does not contain **0**.
